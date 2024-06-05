@@ -1,11 +1,17 @@
+import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, ActivityIndicator, Image } from 'react-native';
+import { View, Text, Button, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Card, Divider } from 'react-native-elements';
 import OnboardingSlider from './OnboardingSlider';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import ChampionDetail from './ChampionDetail';
 
-const App = () => {
+const Stack = createStackNavigator();
+
+const ChampionList = ({ navigation }) => {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [champions, setChampions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,24 +90,26 @@ const App = () => {
   };
 
   const renderItem = ({ item }) => (
-    <Card containerStyle={styles.card}>
-      <View style={styles.item}>
-        <Image 
-          source={{ uri: `https://ddragon.leagueoflegends.com/cdn/11.24.1/img/champion/${item.id}.png` }} 
-          style={styles.image}
-        />
-        <View style={styles.textContainer}>
-          <View style={styles.nameContainer}>
-            <Text style={styles.title}>{item.name}</Text>
-            <View style={styles.tagsContainer}>
-              {renderTags(item.tags)}
+    <TouchableOpacity onPress={() => navigation.navigate('ChampionDetail', { championId: item.id })}>
+      <Card containerStyle={styles.card}>
+        <View style={styles.item}>
+          <Image 
+            source={{ uri: `https://ddragon.leagueoflegends.com/cdn/11.24.1/img/champion/${item.id}.png` }} 
+            style={styles.image}
+          />
+          <View style={styles.textContainer}>
+            <View style={styles.nameContainer}>
+              <Text style={styles.title}>{item.name}</Text>
+              <View style={styles.tagsContainer}>
+                {renderTags(item.tags)}
+              </View>
             </View>
+            <Text style={styles.subtitle}>{item.title}</Text>
           </View>
-          <Text style={styles.subtitle}>{item.title}</Text>
         </View>
-      </View>
-      <Divider style={styles.divider} />
-    </Card>
+        <Divider style={styles.divider} />
+      </Card>
+    </TouchableOpacity>
   );
 
   return (
@@ -136,6 +144,17 @@ const App = () => {
         </View>
       )}
     </View>
+  );
+};
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="ChampionList" component={ChampionList} options={{ title: 'League of Legends Champion List' }} />
+        <Stack.Screen name="ChampionDetail" component={ChampionDetail} options={{ title: 'Champion Detail' }} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
@@ -216,7 +235,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
-    marginRight: 5,
+    marginRight:5,
     marginBottom: 5,
   },
   tagText: {

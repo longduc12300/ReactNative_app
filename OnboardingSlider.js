@@ -15,21 +15,21 @@ const { width } = Dimensions.get('window');
 const slides = [
   {
     key: '1',
-    title: 'Order From Desk',
-    description: 'Now you can order food right from your desk.',
-    image: require('./assets/onboardScreen1.png'),
+    title: 'Welcome To The Rift',
+    description: 'League of legends.',
+    image: require('./assets/ashe.png'),
   },
   {
     key: '2',
-    title: 'Pay Online',
-    description: 'Never worry about change, pay the exact amount while placing the order.',
-    image: require('./assets/onboardScreen2.png'),
+    title: 'Choose Your Champion',
+    description: 'These is a lot of to learn about League, so we will start with the essentials',
+    image: require('./assets/lux1.png'),
   },
   {
     key: '3',
-    title: 'Skip Queues',
-    description: 'Avoid standing in queues, we will notify you when your order is ready.',
-    image: require('./assets/onboardScreen3.png'),
+    title: 'Detail',
+    description: 'View your champion infomation.',
+    image: require('./assets/riven.png'),
   },
 ];
 
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: 280,
-    height: 225,
+    width: 400,
+    height: 400,
     marginBottom: 20,
   },
   title: {
