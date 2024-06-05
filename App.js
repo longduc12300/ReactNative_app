@@ -8,6 +8,9 @@ import OnboardingSlider from './OnboardingSlider';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import ChampionDetail from './ChampionDetail';
+const flatListRef = React.createRef();
+
+
 
 const Stack = createStackNavigator();
 
@@ -76,7 +79,10 @@ const ChampionList = ({ navigation }) => {
       setCurrentPage(currentPage + 1);
     }
   };
-
+  const goToFirstPage = () => {
+    setCurrentPage(1);
+    flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+  };
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, champions.length);
   const visibleChampions = champions.slice(startIndex, endIndex);
@@ -98,7 +104,7 @@ const ChampionList = ({ navigation }) => {
             style={styles.image}
           />
           <View style={styles.textContainer}>
-            <View style={styles.nameContainer}>
+            <View style={styles.nameAndTagsContainer}>
               <Text style={styles.title}>{item.name}</Text>
               <View style={styles.tagsContainer}>
                 {renderTags(item.tags)}
@@ -111,6 +117,7 @@ const ChampionList = ({ navigation }) => {
       </Card>
     </TouchableOpacity>
   );
+  
 
   return (
     <View style={styles.container}>
@@ -118,14 +125,12 @@ const ChampionList = ({ navigation }) => {
         <OnboardingSlider onSkip={handleSkipOrGetStarted} onGetStarted={handleSkipOrGetStarted} />
       ) : (
         <View style={styles.contentContainer}>
-          <View style={styles.listTitleContainer}>
-            <Text style={styles.listTitle}>Danh sách các champions</Text>
-          </View>
           <View style={styles.listContainer}>
             {loading ? (
               <ActivityIndicator size="large" color="#0000ff" />
             ) : (
               <FlatList
+                ref={flatListRef}
                 data={visibleChampions}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
@@ -134,6 +139,7 @@ const ChampionList = ({ navigation }) => {
             )} 
           </View>
           <View style={styles.paginationContainer}>
+          <Button title="Quay lại trang đầu" onPress={goToFirstPage} />
             <Button title="Previous" onPress={goToPreviousPage} disabled={currentPage === 1} />
             <Text>{currentPage}</Text>
             <Button title="Next" onPress={goToNextPage} disabled={endIndex === champions.length} />
@@ -213,9 +219,10 @@ const styles = StyleSheet.create({
   textContainer: {
     flex: 1,
   },
-  nameContainer: {
+  nameAndTagsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between', // Tạo khoảng cách giữa tên và thẻ tags
   },
   title: {
     fontSize: 18,
@@ -235,7 +242,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
-    marginRight:5,
+    marginRight: 5,
     marginBottom: 5,
   },
   tagText: {
