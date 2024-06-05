@@ -28,6 +28,8 @@ const App = () => {
     }
   };
 
+
+  
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
