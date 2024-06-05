@@ -9,6 +9,8 @@ const App = () => {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [champions, setChampions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7; // Số lượng items trên mỗi trang
 
   const handleSkipOrGetStarted = async () => {
     try {
@@ -28,8 +30,6 @@ const App = () => {
     }
   };
 
-
-  
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
@@ -57,6 +57,23 @@ const App = () => {
     checkOnboardingStatus();
     fetchChampions();
   }, []);
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    const totalPages = Math.ceil(champions.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, champions.length);
+  const visibleChampions = champions.slice(startIndex, endIndex);
 
   const renderItem = ({ item }) => (
     <Card containerStyle={styles.card}>
@@ -88,12 +105,17 @@ const App = () => {
               <ActivityIndicator size="large" color="#0000ff" />
             ) : (
               <FlatList
-                data={champions}
+                data={visibleChampions}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.list}
               />
-            )}
+            )} 
+          </View>
+          <View style={styles.paginationContainer}>
+            <Button title="Previous" onPress={goToPreviousPage} disabled={currentPage === 1} />
+            <Text>{currentPage}</Text>
+            <Button title="Next" onPress={goToNextPage} disabled={endIndex === champions.length} />
           </View>
           <View style={styles.buttonContainer}>
             <Button title="Reset Onboarding" onPress={resetOnboarding} />
@@ -128,6 +150,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: 20,
     width: '100%',
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   card: {
     borderRadius: 10,
