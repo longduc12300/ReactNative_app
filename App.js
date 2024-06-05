@@ -75,6 +75,14 @@ const App = () => {
   const endIndex = Math.min(startIndex + itemsPerPage, champions.length);
   const visibleChampions = champions.slice(startIndex, endIndex);
 
+  const renderTags = (tags) => {
+    return tags.map((tag, index) => (
+      <View key={index} style={styles.tag}>
+        <Text style={styles.tagText}>{tag}</Text>
+      </View>
+    ));
+  };
+
   const renderItem = ({ item }) => (
     <Card containerStyle={styles.card}>
       <View style={styles.item}>
@@ -83,7 +91,12 @@ const App = () => {
           style={styles.image}
         />
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{item.name}</Text>
+          <View style={styles.nameContainer}>
+            <Text style={styles.title}>{item.name}</Text>
+            <View style={styles.tagsContainer}>
+              {renderTags(item.tags)}
+            </View>
+          </View>
           <Text style={styles.subtitle}>{item.title}</Text>
         </View>
       </View>
@@ -181,6 +194,10 @@ const styles = StyleSheet.create({
   textContainer: {
     flex: 1,
   },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -188,6 +205,23 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: 'gray',
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginLeft: 10, // Khoảng cách giữa tên và thẻ tags
+  },
+  tag: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  tagText: {
+    fontSize: 12,
+    color: 'black',
   },
   divider: {
     marginTop: 10,
