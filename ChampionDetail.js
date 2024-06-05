@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, ImageBackground } from 'react-native';
 import axios from 'axios';
 
 const ChampionDetail = ({ route }) => {
@@ -24,7 +24,7 @@ const ChampionDetail = ({ route }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.container, styles.loadingContainer]}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
@@ -33,33 +33,46 @@ const ChampionDetail = ({ route }) => {
   if (!championDetail) {
     return (
       <View style={styles.container}>
-        <Text>Không có thông tin chi tiết.</Text>
+        <Text style={styles.errorText}>Không có thông tin chi tiết.</Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>{championDetail.name}</Text>
-      <Text style={styles.subtitle}>{championDetail.title}</Text>
-      <Text style={styles.blurb}>{championDetail.blurb}</Text>
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoTitle}>Info</Text>
-        <Text>Attack: {championDetail.info.attack}</Text>
-        <Text>Defense: {championDetail.info.defense}</Text>
-        <Text>Magic: {championDetail.info.magic}</Text>
-        <Text>Difficulty: {championDetail.info.difficulty}</Text>
-      </View>
-      <View style={styles.statsContainer}>
-        <Text style={styles.infoTitle}>Stats</Text>
-        {Object.entries(championDetail.stats).map(([key, value]) => (
-          <Text key={key}>{`${key}: ${value}`}</Text>
-        ))}
-      </View>
-      <View style={styles.partypeContainer}>
-        <Text style={styles.infoTitle}>Partype</Text>
-        <Text>{championDetail.partype}</Text>
-      </View>
+      <ImageBackground
+        source={{ uri: `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${championId}_0.jpg` }}
+        style={styles.imageBackground}
+      >
+        <View style={styles.content}>
+          <View style={styles.textContainer}>
+            <Text style={[styles.title, styles.whiteText]}>{championDetail.name}</Text>
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={[styles.subtitle, styles.whiteText]}>{championDetail.title}</Text>
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={[styles.blurb, styles.whiteText]}>{championDetail.blurb}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={[styles.infoTitle, styles.whiteText]}>Thông Tin</Text>
+            <Text style={styles.whiteText}>Đánh: {championDetail.info.attack}</Text>
+            <Text style={styles.whiteText}>Phòng Thủ: {championDetail.info.defense}</Text>
+            <Text style={styles.whiteText}>Ma Pháp: {championDetail.info.magic}</Text>
+            <Text style={styles.whiteText}>Độ Khó: {championDetail.info.difficulty}</Text>
+          </View>
+          <View style={styles.statsContainer}>
+            <Text style={[styles.infoTitle, styles.whiteText]}>Thống Kê</Text>
+            {Object.entries(championDetail.stats).map(([key, value]) => (
+              <Text key={key} style={styles.whiteText}>{`${key}: ${value}`}</Text>
+            ))}
+          </View>
+          <View style={styles.partypeContainer}>
+            <Text style={[styles.infoTitle, styles.whiteText]}>Partype</Text>
+            <Text style={styles.whiteText}>{championDetail.partype}</Text>
+          </View>
+        </View>
+      </ImageBackground>
     </ScrollView>
   );
 };
@@ -67,37 +80,63 @@ const ChampionDetail = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  content: {
     padding: 16,
+    alignItems: 'center',
   },
   loadingContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  imageBackground: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+  },
+  textContainer: {
+    marginBottom: 10,
+    paddingHorizontal: 20,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 18,
-    color: 'gray',
+    fontSize: 20,
+    textAlign: 'center',
   },
   blurb: {
-    fontSize: 14,
-    marginVertical: 10,
+    fontSize: 16,
+    textAlign: 'center',
   },
   infoContainer: {
-    marginVertical: 10,
+    marginBottom: 20,
   },
   infoTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
   },
   statsContainer: {
-    marginVertical: 10,
+    marginBottom: 20,
   },
   partypeContainer: {
-    marginVertical: 10,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontSize: 20,
+    color: 'red',
+    textAlign: 'center',
+  },
+  whiteText: {
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 5,
+    padding: 5,
   },
 });
 

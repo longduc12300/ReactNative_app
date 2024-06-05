@@ -79,10 +79,12 @@ const ChampionList = ({ navigation }) => {
       setCurrentPage(currentPage + 1);
     }
   };
+
   const goToFirstPage = () => {
     setCurrentPage(1);
     flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
   };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, champions.length);
   const visibleChampions = champions.slice(startIndex, endIndex);
@@ -246,7 +248,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   tagText: {
-    fontSize: 12,
+    fontSize: 10,
     color: 'black',
   },
   divider: {
