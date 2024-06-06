@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CKEditor in WebView</title>
+  <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+</head>
+<body>
+  <textarea name="editor1" id="editor1" rows="10" cols="80"></textarea>
+  <script>
+    const editor = CKEDITOR.replace('editor1');
+
+    editor.on('change', function() {
+      const content = editor.getData();
+      window.ReactNativeWebView.postMessage(content);
+    });
+
+    function sendData() {
+      const content = editor.getData();
+      window.ReactNativeWebView.postMessage(content);
+    }
+
+    document.addEventListener('message', function(event) {
+      if (event.data === 'getData') {
+        sendData();
+      } else {
+        editor.setData(event.data);
+      }
+    });
+  </script>
+</body>
+</html>
