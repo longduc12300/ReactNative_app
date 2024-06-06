@@ -12,7 +12,6 @@ const flatListRef = React.createRef();
 
 
 
-
 const Stack = createStackNavigator();
 
 const ChampionList = ({ navigation }) => {
@@ -20,9 +19,7 @@ const ChampionList = ({ navigation }) => {
   const [champions, setChampions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [firstLoad, setFirstLoad] = useState(true); // State mới để theo dõi load dữ liệu lần đầu
-  const itemsPerPage = 5; // Số lượng items trên mỗi trang
+  const itemsPerPage = 7; // Số lượng items trên mỗi trang
 
   const handleSkipOrGetStarted = async () => {
     try {
@@ -42,25 +39,6 @@ const ChampionList = ({ navigation }) => {
     }
   };
 
-  const scrollToTop = () => {
-    flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-  };
-
-  const fetchChampions = async (page = 1) => {
-    try {
-      const response = await axios.get('https://ddragon.leagueoflegends.com/cdn/11.24.1/data/en_US/champion.json');
-      const championsData = Object.values(response.data.data);
-      const newChampions = championsData.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-      setChampions(prevChampions => [...prevChampions, ...newChampions]);
-      setLoading(false);
-      setLoadingMore(false);
-    } catch (error) {
-      console.error('Lỗi khi gọi API:', error);
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  };
-
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
@@ -73,25 +51,43 @@ const ChampionList = ({ navigation }) => {
       }
     };
 
+    const fetchChampions = async () => {
+      try {
+        const response = await axios.get('https://ddragon.leagueoflegends.com/cdn/11.24.1/data/en_US/champion.json');
+        const championsData = Object.values(response.data.data);
+        setChampions(championsData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Lỗi khi gọi API:', error);
+        setLoading(false);
+      }
+    };
+
     checkOnboardingStatus();
+    fetchChampions();
+  }, []);
 
-    // Chỉ gọi fetchChampions nếu dữ liệu chưa được load lần nào (firstLoad = true)
-    if (firstLoad) {
-      fetchChampions(currentPage);
-      setFirstLoad(false); // Gán firstLoad thành false sau khi dữ liệu được load lần đầu
-    }
-  }, [firstLoad]); // Thêm firstLoad vào dependencies của useEffect
-
-  const loadMoreChampions = () => {
-    if (!loadingMore && !firstLoad) { // Kiểm tra firstLoad trước khi load thêm dữ liệu
-      setLoadingMore(true);
-      setCurrentPage(prevPage => {
-        const nextPage = prevPage + 1;
-        fetchChampions(nextPage);
-        return nextPage;
-      });
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
+
+  const goToNextPage = () => {
+    const totalPages = Math.ceil(champions.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToFirstPage = () => {
+    setCurrentPage(1);
+    flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+  };
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, champions.length);
+  const visibleChampions = champions.slice(startIndex, endIndex);
 
   const renderTags = (tags) => {
     return tags.map((tag, index) => (
@@ -123,6 +119,7 @@ const ChampionList = ({ navigation }) => {
       </Card>
     </TouchableOpacity>
   );
+  
 
   return (
     <View style={styles.container}>
@@ -138,17 +135,19 @@ const ChampionList = ({ navigation }) => {
                 ref={flatListRef}
                 data={champions}
                 renderItem={renderItem}
-                keyExtractor={item => item.name}
+                keyExtractor={item => item.id}
                 contentContainerStyle={styles.list}
-                onEndReached={loadMoreChampions}
-                onEndReachedThreshold={0.5}
-                ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#0000ff" /> : null}
               />
             )} 
           </View>
+          {/* <View style={styles.paginationContainer}>
+          <Button title="Quay lại trang đầu" onPress={goToFirstPage} />
+            <Button title="Previous" onPress={goToPreviousPage} disabled={currentPage === 1} />
+            <Text>{currentPage}</Text>
+            <Button title="Next" onPress={goToNextPage} disabled={endIndex === champions.length} />
+          </View> */}
           <View style={styles.buttonContainer}>
-          <Button title="Quay lại trang đầu" onPress={scrollToTop} color="#000000" />
-            <Button title="Reset Onboarding" onPress={resetOnboarding} color="#000000" />
+            <Button title="Reset Onboarding" onPress={resetOnboarding} />
           </View>
         </View>
       )}
@@ -160,14 +159,8 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="ChampionList" component={ChampionList} options={{ title: 'League of Legends Champion List', 
-        headerStyle: 
-        { backgroundColor: '#2E8B57',},
-        headerTitleStyle: {
-          color: 'white', },
-         }} />
-        <Stack.Screen name="ChampionDetail" component={ChampionDetail} options={{ title: 'Champion Detail',
-         }} />
+        <Stack.Screen name="ChampionList" component={ChampionList} options={{ title: 'League of Legends Champion List' }} />
+        <Stack.Screen name="ChampionDetail" component={ChampionDetail} options={{ title: 'Champion Detail' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -176,35 +169,27 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    
   },
   listTitleContainer: {
     marginTop: 60,
-    
   },
   listTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    
   },
   listContainer: {
     flex: 1,
     width: '100%',
-    backgroundColor: '#F0FFF0'
   },
   buttonContainer: {
     marginBottom: 20,
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff'
   },
   paginationContainer: {
     flexDirection: 'row',
@@ -244,7 +229,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'black'
   },
   subtitle: {
     fontSize: 14,
@@ -256,7 +240,7 @@ const styles = StyleSheet.create({
     marginLeft: 10, // Khoảng cách giữa tên và thẻ tags
   },
   tag: {
-    backgroundColor: '#2E8B57',
+    backgroundColor: '#e0e0e0',
     borderRadius: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -265,7 +249,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    color: 'white',
+    color: 'black',
   },
   divider: {
     marginTop: 10,

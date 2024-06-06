@@ -64,10 +64,7 @@ const htmlProps = {
   renderers: {},
 };
 
-// const addBaseUrlToSrc = (src) => {
-//   const baseUrl = 'https://center.opposhop.vn/public';
-//   return src.startsWith('/') ? `${baseUrl}${src}` : src;
-// };
+
 
 const htmlContent = `
 TỔNG KẾT TRẠM 3 - SẴN S&Agrave;NG VỀ Đ&Iacute;CH<br />
